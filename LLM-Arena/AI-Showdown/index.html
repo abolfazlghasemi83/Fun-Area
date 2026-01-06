@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparing 4 AI Models: Animation Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        :root {
+            --background-start: #f7f3e9;
+            --background-end: #e8e2d4;
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --quadrant-bg: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --text-color: #3d3d3d;
+            --title-color: #000;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .prompt-container {
+            padding: 25px 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            
+            /* Liquid Glass Effect */
+            background: var(--glass-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(138, 138, 138, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+        }
+
+        .prompt-text {
+            font-size: 1.4rem;
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .quadrant-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: 65vh; /* Set a fixed height for rows */
+            width: 100%;
+            padding: 0 20px 20px 20px;
+            box-sizing: border-box;
+            gap: 25px;
+        }
+
+        .quadrant {
+            background-color: var(--quadrant-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Important for iframe */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .quadrant:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .quadrant h2 {
+            margin: 0;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--title-color);
+            background-color: rgba(245, 245, 245, 0.5);
+        }
+
+        .quadrant iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove iframe border */
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 900px) {
+            .quadrant-container {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 60vh;
+            }
+            .prompt-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="prompt-container">
+        <p class="prompt-text">"Create an HTML animation where a ball starts in the center of a triangle. Each time it collides with one of the triangle's sides, it gains speed and adds one side to the shape."</p>
+    </header>
+
+    <main class="quadrant-container">
+        <section class="quadrant">
+            <h2>ChatGPT</h2>
+            <iframe src="./Source-code/index%20CHATGPT.html"></iframe>
+        </section>
+
+        <section class="quadrant">
+            <h2>Qwen</h2>
+            <iframe src="./Source-code/index%20QWEN.html"></iframe>
+        </section>
+
+        <section class="quadrant">
+            <h2>Gemini</h2>
+            <iframe src="./Source-code/index%20GEMINI.html"></iframe>
+        </section>
+
+        <section class="quadrant">
+            <h2>KimiAi</h2>
+            <iframe src="./Source-code/index%20KIMIAI.html"></iframe>
+        </section>
+    </main>
+
+</body>
+</html>
