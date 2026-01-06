@@ -34,23 +34,23 @@
 
         .glass-container {
             background: var(--glass-bg);
-            border-radius: 15px;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(138, 138, 138, 0.15);
+            box-shadow: 0 6px 24px 0 rgba(138, 138, 138, 0.15);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
 
+        /* --- OPTIMIZATION: Reduced vertical size for header --- */
         .prompt-container {
-            padding: 15px;
-            margin: 12px auto;
+            padding: 10px;
+            margin: 10px auto;
             width: 90%;
             max-width: 1200px;
             box-sizing: border-box;
             flex-shrink: 0;
         }
 
-        /* NEW: Liquid Glass effect for the text itself */
         .liquid-text {
             font-weight: 600;
             background: linear-gradient(45deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
@@ -60,26 +60,28 @@
         }
 
         .prompt-text {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
+        /* --- OPTIMIZATION: Maximized space for quadrant grid --- */
         .quadrant-container {
-            flex-grow: 1; /* This makes the grid take all available vertical space */
+            flex-grow: 1; /* This is the key: takes all available space */
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
+            min-height: 0; /* Prevents overflow issues in flex children */
             width: 100%;
-            padding: 0 12px 12px 12px;
+            padding: 0 10px 10px 10px;
             box-sizing: border-box;
-            gap: 12px;
+            gap: 10px;
         }
 
         .quadrant {
             background-color: var(--quadrant-bg);
             border: 1px solid var(--border-color);
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 4px 15px var(--shadow-color);
             display: flex;
             flex-direction: column;
@@ -88,9 +90,9 @@
 
         .quadrant h2 {
             margin: 0;
-            padding: 10px;
+            padding: 8px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--title-color);
             background-color: rgba(245, 245, 245, 0.5);
@@ -103,22 +105,20 @@
             border: none;
         }
 
+        /* --- OPTIMIZATION: Reduced vertical size for footer --- */
         .site-footer {
-            margin: 12px auto;
-            padding: 8px 15px;
+            margin: 10px auto;
+            padding: 6px 15px;
             width: fit-content;
             flex-shrink: 0;
         }
         .footer-text {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         @media (max-width: 900px) {
-            body {
-                overflow: auto;
-                height: auto;
-            }
+            body { overflow: auto; height: auto; }
             .quadrant-container {
                 grid-template-columns: 1fr;
                 grid-template-rows: repeat(4, 60vh);
@@ -146,7 +146,7 @@
         <section class="quadrant">
             <h2>Gemini</h2>
             <iframe src="./Source-code/index%20GEMINI.html"></iframe>
-        </section>
+        section>
 
         <section class="quadrant">
             <h2>KimiAi</h2>
