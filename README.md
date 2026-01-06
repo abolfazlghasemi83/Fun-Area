@@ -1,2 +1,1 @@
-# Fun-Area
-Fun AI Prompts - Fun Python  games - Fun Animations built With Html 
+Dive into a collection of entertaining projects! Featuring imaginative AI art prompts, classic games remade in Python, and stunning animations built with pure HTML.
