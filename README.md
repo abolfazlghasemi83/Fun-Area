@@ -12,7 +12,7 @@ Here are the main projects and collections you can explore within this repositor
 
 | Project Folder | Description | Technologies | Status |
 | :--- | :--- | :--- | :--- |
-| **[🎢 Fun-Area](./Fun-Area/)** | An interactive playground featuring AI comparisons, games, and creative web animations. A showcase of the entertaining side of code. | `HTML` `CSS` `JS` `Python` | 🟢 Active |
+| **[LLM-Arena/AI-Showdown/](./LLM-Arena/AI-Showdown/)** | A head-to-head comparison of four major AI models based on a single creative coding prompt. | `HTML` `CSS` `JS` | 🟢 Active |
 | **`[Coming Soon]`** | `Description of your next project.` | `Tech used` | ⚪ Planned |
 | **`[Coming Soon]`** | `Description of your next project.` | `Tech used` | ⚪ Planned |
 
