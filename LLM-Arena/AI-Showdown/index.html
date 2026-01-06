@@ -10,67 +10,70 @@
         :root {
             --background-start: #f7f3e9;
             --background-end: #e8e2d4;
-            --glass-bg: rgba(255, 255, 255, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
             --quadrant-bg: #FFFFFF;
             --border-color: #E0E0E0;
             --shadow-color: rgba(0, 0, 0, 0.08);
             --text-color: #3d3d3d;
-            --title-color: #000;
         }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh; /* Set viewport height */
-            overflow: hidden; /* Prevent scrolling */
+            height: 100vh;
+            overflow: hidden;
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, var(--background-start), var(--background-end));
             color: var(--text-color);
             text-align: center;
-            
-            /* New Flexbox Layout for vertical alignment */
             display: flex;
             flex-direction: column;
         }
 
-        /* Generic class for glass effect */
         .glass-container {
             background: var(--glass-bg);
             border-radius: 15px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(138, 138, 138, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(138, 138, 138, 0.15);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
 
         .prompt-container {
-            padding: 20px;
-            margin: 15px auto;
+            padding: 15px;
+            margin: 12px auto;
             width: 90%;
             max-width: 1200px;
             box-sizing: border-box;
-            flex-shrink: 0; /* Prevent header from shrinking */
+            flex-shrink: 0;
+        }
+
+        /* NEW: Liquid Glass effect for the text itself */
+        .liquid-text {
+            font-weight: 600;
+            background: linear-gradient(45deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .prompt-text {
-            font-size: 1.2rem;
-            color: var(--text-color);
+            font-size: 1.3rem;
             margin: 0;
             line-height: 1.5;
         }
 
         .quadrant-container {
-            /* This makes the quadrant grid take all available vertical space */
-            flex-grow: 1;
+            flex-grow: 1; /* This makes the grid take all available vertical space */
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr; /* Equal height rows */
+            grid-template-rows: 1fr 1fr;
             width: 100%;
-            padding: 0 15px 15px 15px;
+            padding: 0 12px 12px 12px;
             box-sizing: border-box;
-            gap: 15px;
+            gap: 12px;
         }
 
         .quadrant {
@@ -81,23 +84,17 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .quadrant:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
 
         .quadrant h2 {
             margin: 0;
-            padding: 12px;
+            padding: 10px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--title-color);
             background-color: rgba(245, 245, 245, 0.5);
-            flex-shrink: 0; /* Prevent title from shrinking */
+            flex-shrink: 0;
         }
 
         .quadrant iframe {
@@ -107,29 +104,24 @@
         }
 
         .site-footer {
-            margin: 15px auto;
-            padding: 10px 20px;
-            width: fit-content; /* Makes box fit the text */
-            flex-shrink: 0; /* Prevent footer from shrinking */
+            margin: 12px auto;
+            padding: 8px 15px;
+            width: fit-content;
+            flex-shrink: 0;
         }
-        .footer-text{
-            margin:0;
+        .footer-text {
+            margin: 0;
             font-size: 0.9rem;
-            color: var(--text-color);
         }
 
-        /* Responsive design for smaller screens */
         @media (max-width: 900px) {
             body {
-                overflow: auto; /* Allow scrolling on mobile */
+                overflow: auto;
                 height: auto;
             }
             .quadrant-container {
                 grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 60vh); /* Fixed height for each quadrant */
-            }
-            .prompt-text {
-                font-size: 1rem;
+                grid-template-rows: repeat(4, 60vh);
             }
         }
     </style>
@@ -137,7 +129,7 @@
 <body>
 
     <header class="prompt-container glass-container">
-        <p class="prompt-text">"Create an HTML animation where a ball starts in the center of a triangle. Each time it collides with one of the triangle's sides, it gains speed and adds one side to the shape."</p>
+        <p class="prompt-text liquid-text">"Create an HTML animation where a ball starts in the center of a triangle. Each time it collides with one of the triangle's sides, it gains speed and adds one side to the shape."</p>
     </header>
 
     <main class="quadrant-container">
@@ -163,7 +155,7 @@
     </main>
 
     <footer class="site-footer glass-container">
-        <p class="footer-text">Made by Abolfazl Ghasemi</p>
+        <p class="footer-text liquid-text">Made by Abolfazl Ghasemi</p>
     </footer>
 
 </body>
