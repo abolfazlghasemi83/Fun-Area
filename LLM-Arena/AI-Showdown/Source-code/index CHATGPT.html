@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ball Inside Expanding Polygon</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0e0e0e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas" width="600" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const center = { x: canvas.width / 2, y: canvas.height / 2 };
+const radius = 220;
+
+let sides = 3;
+let speedMultiplier = 1.05;
+
+// Ball
+const ball = {
+  x: center.x,
+  y: center.y,
+  r: 6,
+  vx: 3,
+  vy: 2
+};
+
+// Generate polygon vertices
+function getPolygonVertices(sides) {
+  const vertices = [];
+  const angleStep = (Math.PI * 2) / sides;
+
+  for (let i = 0; i < sides; i++) {
+    const angle = angleStep * i - Math.PI / 2;
+    vertices.push({
+      x: center.x + radius * Math.cos(angle),
+      y: center.y + radius * Math.sin(angle)
+    });
+  }
+  return vertices;
+}
+
+// Reflect ball velocity from a line segment
+function reflectVelocity(ball, p1, p2) {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+
+  const length = Math.hypot(dx, dy);
+  const nx = -dy / length;
+  const ny = dx / length;
+
+  const dot = ball.vx * nx + ball.vy * ny;
+  ball.vx -= 2 * dot * nx;
+  ball.vy -= 2 * dot * ny;
+
+  ball.vx *= speedMultiplier;
+  ball.vy *= speedMultiplier;
+}
+
+// Check collision with polygon edges
+function checkCollisions(vertices) {
+  for (let i = 0; i < vertices.length; i++) {
+    const p1 = vertices[i];
+    const p2 = vertices[(i + 1) % vertices.length];
+
+    const A = p2.y - p1.y;
+    const B = p1.x - p2.x;
+    const C = p2.x * p1.y - p1.x * p2.y;
+
+    const dist = Math.abs(A * ball.x + B * ball.y + C) /
+                 Math.hypot(A, B);
+
+    if (dist <= ball.r) {
+      reflectVelocity(ball, p1, p2);
+      sides++;
+      return;
+    }
+  }
+}
+
+// Draw polygon
+function drawPolygon(vertices) {
+  ctx.beginPath();
+  ctx.moveTo(vertices[0].x, vertices[0].y);
+  vertices.forEach(v => ctx.lineTo(v.x, v.y));
+  ctx.closePath();
+  ctx.strokeStyle = "#00d4ff";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// Draw ball
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = "#ff4d4d";
+  ctx.fill();
+}
+
+// Animation loop
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const vertices = getPolygonVertices(sides);
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  checkCollisions(vertices);
+
+  drawPolygon(vertices);
+  drawBall();
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>

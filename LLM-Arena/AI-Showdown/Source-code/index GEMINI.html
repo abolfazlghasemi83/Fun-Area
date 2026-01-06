@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <title>انیمیشن تغییر شکل</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let sides = 3;
+    let speed = 2;
+    const ballRadius = 10;
+    let ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      dx: speed * (Math.random() > 0.5 ? 1 : -1), // Start with a random horizontal direction
+      dy: speed * (Math.random() > 0.5 ? 1 : -1), // Start with a random vertical direction
+      radius: ballRadius
+    };
+
+    let collisionCooldown = 0; // Cooldown to prevent multiple detections for one hit
+
+    function getPolygonVertices(centerX, centerY, radius, numSides) {
+      const vertices = [];
+      const angleStep = (Math.PI * 2) / numSides;
+      for (let i = 0; i < numSides; i++) {
+        // Start from top vertex
+        const angle = i * angleStep - Math.PI / 2;
+        vertices.push({
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+      }
+      return vertices;
+    }
+
+    function drawPolygon(vertices) {
+      if (vertices.length < 3) return;
+      ctx.beginPath();
+      ctx.moveTo(vertices[0].x, vertices[0].y);
+      for (let i = 1; i < vertices.length; i++) {
+        ctx.lineTo(vertices[i].x, vertices[i].y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+    
+    function checkAndRespondToCollision(circle, v1, v2) {
+      const edgeVec = { x: v2.x - v1.x, y: v2.y - v1.y };
+      const pointVec = { x: circle.x - v1.x, y: circle.y - v1.y };
+      const edgeLenSq = edgeVec.x * edgeVec.x + edgeVec.y * edgeVec.y;
+      const t = (pointVec.x * edgeVec.x + pointVec.y * edgeVec.y) / edgeLenSq;
+      
+      let closestPoint;
+      if (t < 0) {
+        closestPoint = v1;
+      } else if (t > 1) {
+        closestPoint = v2;
+      } else {
+        closestPoint = { x: v1.x + t * edgeVec.x, y: v1.y + t * edgeVec.y };
+      }
+
+      const distVec = { x: circle.x - closestPoint.x, y: circle.y - closestPoint.y };
+      const distanceSq = distVec.x * distVec.x + distVec.y * distVec.y;
+
+      if (distanceSq < circle.radius * circle.radius) {
+        // Collision detected, now reflect
+        let normal = { x: -edgeVec.y, y: edgeVec.x };
+        const len = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+        normal.x /= len;
+        normal.y /= len;
+        
+        const velVec = { x: circle.dx, y: circle.dy };
+        const dot = velVec.x * normal.x + velVec.y * normal.y;
+
+        circle.dx -= 2 * dot * normal.x;
+        circle.dy -= 2 * dot * normal.y;
+        
+        return true;
+      }
+      return false;
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const polygonRadius = Math.min(canvas.width, canvas.height) / 2.5;
+      const polygonCenterX = canvas.width / 2;
+      const polygonCenterY = canvas.height / 2;
+      
+      const vertices = getPolygonVertices(polygonCenterX, polygonCenterY, polygonRadius, sides);
+      drawPolygon(vertices);
+      drawBall();
+
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+      
+      if (collisionCooldown > 0) {
+        collisionCooldown--;
+      }
+
+      // Check collision with polygon sides
+      if (collisionCooldown === 0) {
+        for (let i = 0; i < vertices.length; i++) {
+          const v1 = vertices[i];
+          const v2 = vertices[(i + 1) % vertices.length];
+          if (checkAndRespondToCollision(ball, v1, v2)) {
+            sides++;
+            speed *= 1.15; // Increase speed
+            
+            // Adjust velocity to new speed
+            const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+            ball.dx = (ball.dx / currentSpeed) * speed;
+            ball.dy = (ball.dy / currentSpeed) * speed;
+            
+            collisionCooldown = 15; // Set a brief cooldown period
+            break; // Exit loop after first collision
+          }
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+  </script>
+</body>
+</html>

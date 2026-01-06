@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolving Polygon Bounce</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        .container {
+            position: relative;
+            width: 800px;
+            max-width: 95vw;
+            height: 600px;
+            max-height: 90vh;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .info-panel h2 {
+            margin: 0 0 10px 0;
+            color: #ffcc00;
+            font-size: 1.4em;
+        }
+        
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+        
+        .counter {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4dff4d;
+        }
+        
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+            letter-spacing: 2px;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: white;
+            color: #1a2a6c;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Evolving Polygon Bounce</div>
+        <canvas id="animationCanvas"></canvas>
+        <div class="info-panel">
+            <h2>Physics Simulation</h2>
+            <p>Sides: <span id="sideCount" class="counter">3</span></p>
+            <p>Collisions: <span id="collisionCount" class="counter">0</span></p>
+            <p>Speed: <span id="speedDisplay" class="counter">1.0x</span></p>
+            <p>Current shape: <span id="shapeName">Triangle</span></p>
+        </div>
+        <div class="controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('animationCanvas');
+        const ctx = canvas.getContext('2d');
+        const sideCountElement = document.getElementById('sideCount');
+        const collisionCountElement = document.getElementById('collisionCount');
+        const speedDisplayElement = document.getElementById('speedDisplay');
+        const shapeNameElement = document.getElementById('shapeName');
+        const resetBtn = document.getElementById('resetBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        
+        // Set canvas dimensions
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Physics constants
+        const CENTER_X = canvas.width / 2;
+        const CENTER_Y = canvas.height / 2;
+        const RADIUS = Math.min(canvas.width, canvas.height) * 0.35;
+        const BALL_RADIUS = 12;
+        const INITIAL_SPEED = 2;
+        const SPEED_INCREMENT = 0.3;
+        
+        // Animation state
+        let sides = 3;
+        let collisions = 0;
+        let speed = INITIAL_SPEED;
+        let paused = false;
+        let animationId;
+        
+        // Ball properties
+        let ball = {
+            x: CENTER_X,
+            y: CENTER_Y,
+            vx: 0,
+            vy: 0,
+            radius: BALL_RADIUS
+        };
+        
+        // Initialize ball velocity
+        function initBallVelocity() {
+            const angle = Math.random() * Math.PI * 2;
+            ball.vx = Math.cos(angle) * speed;
+            ball.vy = Math.sin(angle) * speed;
+        }
+        
+        // Get polygon vertices
+        function getPolygonVertices(sides, centerX, centerY, radius) {
+            const vertices = [];
+            const angleStep = (Math.PI * 2) / sides;
+            
+            for (let i = 0; i < sides; i++) {
+                const angle = i * angleStep - Math.PI / 2; // Start from top
+                vertices.push({
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius
+                });
+            }
+            
+            return vertices;
+        }
+        
+        // Draw polygon
+        function drawPolygon(vertices, color) {
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            
+            for (let i = 1; i < vertices.length; i++) {
+                ctx.lineTo(vertices[i].x, vertices[i].y);
+            }
+            
+            ctx.closePath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+        
+        // Draw ball
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffcc00';
+            ctx.fill();
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Add shine effect
+            ctx.beginPath();
+            ctx.arc(ball.x - ball.radius/3, ball.y - ball.radius/3, ball.radius/3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fill();
+        }
+        
+        // Check collision with polygon edge
+        function checkCollision(vertices) {
+            for (let i = 0; i < vertices.length; i++) {
+                const p1 = vertices[i];
+                const p2 = vertices[(i + 1) % vertices.length];
+                
+                // Vector from p1 to p2
+                const edge = { x: p2.x - p1.x, y: p2.y - p1.y };
+                // Vector from p1 to ball
+                const ballToP1 = { x: ball.x - p1.x, y: ball.y - p1.y };
+                
+                // Calculate projection of ballToP1 onto edge
+                const edgeLength = Math.sqrt(edge.x * edge.x + edge.y * edge.y);
+                const edgeUnit = { x: edge.x / edgeLength, y: edge.y / edgeLength };
+                const projection = ballToP1.x * edgeUnit.x + ballToP1.y * edgeUnit.y;
+                
+                // Clamp projection to edge segment
+                const clampedProjection = Math.max(0, Math.min(edgeLength, projection));
+                
+                // Closest point on edge to ball
+                const closest = {
+                    x: p1.x + clampedProjection * edgeUnit.x,
+                    y: p1.y + clampedProjection * edgeUnit.y
+                };
+                
+                // Distance from ball to closest point
+                const distance = Math.sqrt(
+                    Math.pow(ball.x - closest.x, 2) + 
+                    Math.pow(ball.y - closest.y, 2)
+                );
+                
+                // Check if collision occurred
+                if (distance <= ball.radius) {
+                    // Calculate normal vector (perpendicular to edge)
+                    const normal = { x: -edge.y / edgeLength, y: edge.x / edgeLength };
+                    
+                    // Make sure normal points toward the ball
+                    const toBall = { x: ball.x - closest.x, y: ball.y - closest.y };
+                    const dot = normal.x * toBall.x + normal.y * toBall.y;
+                    if (dot < 0) {
+                        normal.x *= -1;
+                        normal.y *= -1;
+                    }
+                    
+                    // Reflect velocity
+                    const dotProduct = ball.vx * normal.x + ball.vy * normal.y;
+                    ball.vx = ball.vx - 2 * dotProduct * normal.x;
+                    ball.vy = ball.vy - 2 * dotProduct * normal.y;
+                    
+                    // Increase speed
+                    speed += SPEED_INCREMENT;
+                    const speedMultiplier = speed / INITIAL_SPEED;
+                    ball.vx *= speedMultiplier;
+                    ball.vy *= speedMultiplier;
+                    
+                    // Move ball away from edge to prevent sticking
+                    ball.x = closest.x + normal.x * (ball.radius + 2);
+                    ball.y = closest.y + normal.y * (ball.radius + 2);
+                    
+                    // Update collision count
+                    collisions++;
+                    
+                    // Add a side to the polygon (up to 12 sides)
+                    if (sides < 12) {
+                        sides++;
+                    }
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Get shape name
+        function getShapeName(sides) {
+            const names = [
+                '', '', '', 'Triangle', 'Square', 'Pentagon', 
+                'Hexagon', 'Heptagon', 'Octagon', 'Nonagon', 
+                'Decagon', 'Hendecagon', 'Dodecagon'
+            ];
+            return names[sides] || `${sides}-gon`;
+        }
+        
+        // Update display info
+        function updateDisplay() {
+            sideCountElement.textContent = sides;
+            collisionCountElement.textContent = collisions;
+            speedDisplayElement.textContent = (speed / INITIAL_SPEED).toFixed(1) + 'x';
+            shapeNameElement.textContent = getShapeName(sides);
+        }
+        
+        // Reset simulation
+        function resetSimulation() {
+            sides = 3;
+            collisions = 0;
+            speed = INITIAL_SPEED;
+            ball.x = CENTER_X;
+            ball.y = CENTER_Y;
+            initBallVelocity();
+            updateDisplay();
+        }
+        
+        // Animation loop
+        function animate() {
+            if (paused) return;
+            
+            // Clear canvas with a semi-transparent overlay for motion blur effect
+            ctx.fillStyle = 'rgba(26, 42, 108, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Get current polygon vertices
+            const vertices = getPolygonVertices(sides, CENTER_X, CENTER_Y, RADIUS);
+            
+            // Draw polygon
+            drawPolygon(vertices, '#4dff4d');
+            
+            // Update ball position
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            
+            // Check for collisions
+            checkCollision(vertices);
+            
+            // Draw ball
+            drawBall();
+            
+            // Update display
+            updateDisplay();
+            
+            // Continue animation
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        resetBtn.addEventListener('click', () => {
+            resetSimulation();
+            if (paused) {
+                paused = false;
+                animate();
+            }
+        });
+        
+        pauseBtn.addEventListener('click', () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+            if (!paused) {
+                animate();
+            }
+        });
+        
+        // Initialize and start animation
+        resetSimulation();
+        animate();
+    </script>
+</body>
+</html>

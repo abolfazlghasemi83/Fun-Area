@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball in Expanding Polygon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+        }
+        canvas {
+            border: 2px solid #333;
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Animation parameters
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2;
+        let ballRadius = 8;
+        let speed = 2;
+        let angle = Math.random() * Math.PI * 2;
+        
+        // Ball position
+        let ballX = centerX;
+        let ballY = centerY;
+        let velocityX = Math.cos(angle) * speed;
+        let velocityY = Math.sin(angle) * speed;
+        
+        // Polygon parameters
+        let sides = 3;
+        let radius = 150;
+        let rotation = 0;
+        
+        // Colors
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'];
+        let currentColor = 0;
+        
+        // Create polygon vertices
+        function getPolygonVertices(sides, radius, rotation) {
+            const vertices = [];
+            const angleStep = (Math.PI * 2) / sides;
+            
+            for (let i = 0; i < sides; i++) {
+                const angle = i * angleStep + rotation;
+                vertices.push({
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius
+                });
+            }
+            
+            return vertices;
+        }
+        
+        // Check collision between ball and polygon edge
+        function checkCollision(ballX, ballY, vertices) {
+            for (let i = 0; i < vertices.length; i++) {
+                const v1 = vertices[i];
+                const v2 = vertices[(i + 1) % vertices.length];
+                
+                // Find closest point on edge to ball
+                const edge = {
+                    x: v2.x - v1.x,
+                    y: v2.y - v1.y
+                };
+                
+                const ballToVertex = {
+                    x: ballX - v1.x,
+                    y: ballY - v1.y
+                };
+                
+                const edgeLength = Math.sqrt(edge.x * edge.x + edge.y * edge.y);
+                const edgeNormalized = {
+                    x: edge.x / edgeLength,
+                    y: edge.y / edgeLength
+                };
+                
+                const projection = ballToVertex.x * edgeNormalized.x + ballToVertex.y * edgeNormalized.y;
+                const clampedProjection = Math.max(0, Math.min(edgeLength, projection));
+                
+                const closestPoint = {
+                    x: v1.x + edgeNormalized.x * clampedProjection,
+                    y: v1.y + edgeNormalized.y * clampedProjection
+                };
+                
+                const distance = Math.sqrt(
+                    Math.pow(ballX - closestPoint.x, 2) + 
+                    Math.pow(ballY - closestPoint.y, 2)
+                );
+                
+                if (distance <= ballRadius) {
+                    // Calculate normal vector
+                    const normal = {
+                        x: (ballX - closestPoint.x) / distance,
+                        y: (ballY - closestPoint.y) / distance
+                    };
+                    
+                    return {
+                        collision: true,
+                        normal: normal,
+                        edgeIndex: i
+                    };
+                }
+            }
+            
+            return { collision: false };
+        }
+        
+        // Reflect velocity based on normal
+        function reflectVelocity(velocity, normal) {
+            const dotProduct = velocity.x * normal.x + velocity.y * normal.y;
+            return {
+                x: velocity.x - 2 * dotProduct * normal.x,
+                y: velocity.y - 2 * dotProduct * normal.y
+            };
+        }
+        
+        // Check if ball is inside polygon
+        function isInsidePolygon(ballX, ballY, vertices) {
+            let inside = false;
+            for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+                if (((vertices[i].y > ballY) !== (vertices[j].y > ballY)) &&
+                    (ballX < (vertices[j].x - vertices[i].x) * (ballY - vertices[i].y) / (vertices[j].y - vertices[i].y) + vertices[i].x)) {
+                    inside = !inside;
+                }
+            }
+            return inside;
+        }
+        
+        // Animation loop
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Get current polygon vertices
+            const vertices = getPolygonVertices(sides, radius, rotation);
+            
+            // Update ball position
+            ballX += velocityX;
+            ballY += velocityY;
+            
+            // Check collision with polygon
+            const collision = checkCollision(ballX, ballY, vertices);
+            
+            if (collision.collision) {
+                // Reflect velocity
+                const newVelocity = reflectVelocity({x: velocityX, y: velocityY}, collision.normal);
+                velocityX = newVelocity.x;
+                velocityY = newVelocity.y;
+                
+                // Increase speed
+                speed *= 1.1;
+                const currentSpeed = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+                velocityX = (velocityX / currentSpeed) * speed;
+                velocityY = (velocityY / currentSpeed) * speed;
+                
+                // Add one side to polygon
+                sides++;
+                currentColor = (currentColor + 1) % colors.length;
+                
+                // Move ball away from edge to prevent sticking
+                ballX += collision.normal.x * 2;
+                ballY += collision.normal.y * 2;
+            }
+            
+            // Ensure ball stays inside polygon (safety check)
+            if (!isInsidePolygon(ballX, ballY, vertices)) {
+                // Move ball back to center
+                ballX = centerX;
+                ballY = centerY;
+            }
+            
+            // Draw polygon
+            ctx.strokeStyle = colors[currentColor];
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            for (let i = 1; i < vertices.length; i++) {
+                ctx.lineTo(vertices[i].x, vertices[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+            
+            // Draw ball with trail effect
+            ctx.fillStyle = colors[currentColor];
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add glow effect
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = colors[currentColor];
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Display info
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Sides: ${sides}`, 10, 30);
+            ctx.fillText(`Speed: ${speed.toFixed(1)}`, 10, 50);
+            
+            // Slowly rotate the polygon
+            rotation += 0.005;
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
