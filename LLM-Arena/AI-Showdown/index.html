@@ -97,7 +97,6 @@
             flex-shrink: 0;
         }
 
-      
         .iframe-wrapper {
             flex-grow: 1;
             position: relative;
@@ -108,18 +107,15 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
             border: none;
-            
-            
             transform-origin: top left;
-        
-            transform: scale(var(--iframe-scale, 0.75)); 
             
-       
-            width: calc(100% / var(--iframe-scale, 0.75));
-            height: calc(100% / var(--iframe-scale, 0.75));
+            /* Apply the custom scale for each iframe */
+            transform: scale(var(--iframe-scale)); 
+            
+            /* Compensate width and height based on the scale */
+            width: calc(100% / var(--iframe-scale));
+            height: calc(100% / var(--iframe-scale));
         }
 
         .site-footer {
@@ -139,10 +135,6 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: repeat(4, 60vh);
             }
-            .iframe-wrapper iframe {
-                /* On mobile, we can use a different scale if needed */
-                --iframe-scale: 0.6;
-            }
         }
     </style>
 </head>
@@ -155,28 +147,32 @@
     <main class="quadrant-container">
         <section class="quadrant">
             <h2>ChatGPT</h2>
-            <div class="iframe-wrapper">
+            <!-- Set a specific, smaller scale for ChatGPT -->
+            <div class="iframe-wrapper" style="--iframe-scale: 0.55;">
                 <iframe src="./Source-code/index%20CHATGPT.html" scrolling="no"></iframe>
             </div>
         </section>
 
         <section class="quadrant">
             <h2>Qwen</h2>
-            <div class="iframe-wrapper">
+            <!-- A larger scale for Qwen as it fits well -->
+            <div class="iframe-wrapper" style="--iframe-scale: 0.75;">
                 <iframe src="./Source-code/index%20QWEN.html" scrolling="no"></iframe>
             </div>
         </section>
 
         <section class="quadrant">
             <h2>Gemini</h2>
-            <div class="iframe-wrapper">
+            <!-- A larger scale for Gemini as it fits well -->
+            <div class="iframe-wrapper" style="--iframe-scale: 0.75;">
                 <iframe src="./Source-code/index%20GEMINI.html" scrolling="no"></iframe>
             </div>
         </section>
 
         <section class="quadrant">
             <h2>KimiAi</h2>
-            <div class="iframe-wrapper">
+            <!-- Set a specific, smaller scale for KimiAi -->
+            <div class="iframe-wrapper" style="--iframe-scale: 0.6;">
                 <iframe src="./Source-code/index%20KIMIAI.html" scrolling="no"></iframe>
             </div>
         </section>
