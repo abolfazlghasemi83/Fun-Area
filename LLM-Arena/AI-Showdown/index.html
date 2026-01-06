@@ -43,7 +43,7 @@
 
         .prompt-container {
             padding: 10px;
-            margin: 8px auto; /* Reduced margin */
+            margin: 8px auto;
             width: 90%;
             max-width: 1200px;
             box-sizing: border-box;
@@ -71,9 +71,9 @@
             grid-template-rows: 1fr 1fr;
             min-height: 0;
             width: 100%;
-            padding: 0 8px 8px 8px; /* Reduced padding */
+            padding: 0 8px 8px 8px;
             box-sizing: border-box;
-            gap: 8px; /* Reduced gap */
+            gap: 8px;
         }
 
         .quadrant {
@@ -97,14 +97,33 @@
             flex-shrink: 0;
         }
 
-        .quadrant iframe {
+      
+        .iframe-wrapper {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .iframe-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border: none;
-        }
+            
+            
+            transform-origin: top left;
         
+            transform: scale(var(--iframe-scale, 0.75)); 
+            
+       
+            width: calc(100% / var(--iframe-scale, 0.75));
+            height: calc(100% / var(--iframe-scale, 0.75));
+        }
+
         .site-footer {
-            margin: 8px auto; /* Reduced margin */
+            margin: 8px auto;
             padding: 6px 15px;
             width: fit-content;
             flex-shrink: 0;
@@ -120,6 +139,10 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: repeat(4, 60vh);
             }
+            .iframe-wrapper iframe {
+                /* On mobile, we can use a different scale if needed */
+                --iframe-scale: 0.6;
+            }
         }
     </style>
 </head>
@@ -132,22 +155,30 @@
     <main class="quadrant-container">
         <section class="quadrant">
             <h2>ChatGPT</h2>
-            <iframe src="./Source-code/index%20CHATGPT.html"></iframe>
+            <div class="iframe-wrapper">
+                <iframe src="./Source-code/index%20CHATGPT.html" scrolling="no"></iframe>
+            </div>
         </section>
 
         <section class="quadrant">
             <h2>Qwen</h2>
-            <iframe src="./Source-code/index%20QWEN.html"></iframe>
+            <div class="iframe-wrapper">
+                <iframe src="./Source-code/index%20QWEN.html" scrolling="no"></iframe>
+            </div>
         </section>
 
         <section class="quadrant">
             <h2>Gemini</h2>
-            <iframe src="./Source-code/index%20GEMINI.html"></iframe>
-        </section> <!-- FIXED THE BROKEN TAG HERE -->
+            <div class="iframe-wrapper">
+                <iframe src="./Source-code/index%20GEMINI.html" scrolling="no"></iframe>
+            </div>
+        </section>
 
         <section class="quadrant">
             <h2>KimiAi</h2>
-            <iframe src="./Source-code/index%20KIMIAI.html"></iframe>
+            <div class="iframe-wrapper">
+                <iframe src="./Source-code/index%20KIMIAI.html" scrolling="no"></iframe>
+            </div>
         </section>
     </main>
 
