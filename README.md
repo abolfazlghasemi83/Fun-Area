@@ -13,8 +13,8 @@ Here are the main projects and collections you can explore within this repositor
 | Project Folder | Description | Technologies | Status |
 | :--- | :--- | :--- | :--- |
 | **[LLM-Arena/AI-Showdown/](./LLM-Arena/AI-Showdown/)** | A head-to-head comparison of four major AI models based on a single creative coding prompt. | `HTML` `CSS` `JS` | 🟢 Active |
-| **`[Coming Soon]`** | `Description of your next project.` | `Tech used` | ⚪ Planned |
-| **`[Coming Soon]`** | `Description of your next project.` | `Tech used` | ⚪ Planned |
+| **`[Coming Soon]`** | `` | `Tech used` | ⚪ Planned |
+| **`[Coming Soon]`** | `` | `Tech used` | ⚪ Planned |
 
 ---
 
