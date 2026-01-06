@@ -1,4 +1,4 @@
-# Abolfazl Ghasemi's Code Sandbox 🎨
+# Fun-Area (Code Sandbox) 🎨
 
 Welcome to my personal code sandbox! This repository is a curated collection of my projects, experiments, and creative explorations in the world of programming. From AI-driven applications to interactive web designs, this is where I bring ideas to life.
 
